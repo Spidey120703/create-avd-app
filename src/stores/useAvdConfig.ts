@@ -1,8 +1,9 @@
 import { reactive, ref } from "vue";
 import { AvdConfig } from "../types/avd-config";
 import { defineStore } from "pinia";
+import { useAvdConfigHints } from "../composables/useAvdConfigHints";
 
-export const useAvdConfigStore = defineStore('avd-config', () => {
+export const useAvdConfigStore = defineStore("avd-config", () => {
   const config = reactive<AvdConfig>({
     AvdId: "Pixel_6_Pro_API_33",
     PlayStore: {
@@ -84,7 +85,7 @@ export const useAvdConfigStore = defineStore('avd-config', () => {
     showDeviceFrame: true,
     skin: {
       dynamic: true,
-      name: 'pixel_6_pro',
+      name: "pixel_6_pro",
       path: "D:\\Users\\Peter\\AppData\\Local\\Android\\Sdk\\skins\\pixel_6_pro",
     },
     tag: {
@@ -102,17 +103,36 @@ export const useAvdConfigStore = defineStore('avd-config', () => {
 
   const resetTips = () => {
     tips.value = "";
-  }
+  };
 
   const setTips = (message: string) => {
     tips.value = message;
-  }
+  };
 
   const onBlur = (event: Event) => {
     if (tips.value) {
       (event.target! as HTMLInputElement).focus();
+    } else {
+      resetHints();
     }
   };
+
+  const hints = ref<null | { title: string; content: string }>(null);
+
+  const resetHints = () => {
+    hints.value = null;
+  }
+
+  const setHints = (title: string, content: string) => {
+    hints.value = { title, content };
+  }
+
+  const setHintsById = (id: string) => {
+    const {hintsMap} = useAvdConfigHints();
+    if (hintsMap.has(id)) {
+      hints.value = hintsMap.get(id)!;
+    }
+  }
 
   return {
     config,
@@ -120,5 +140,9 @@ export const useAvdConfigStore = defineStore('avd-config', () => {
     resetTips,
     setTips,
     onBlur,
+    hints,
+    resetHints,
+    setHints,
+    setHintsById,
   };
 });

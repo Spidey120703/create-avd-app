@@ -1,7 +1,7 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 import { reactive, ref, watch } from "vue";
 import SizeInput from './inputs/size-input.vue';
-import { useAvdConfigStore } from "../composables/useAvdConfig";
+import { useAvdConfigStore } from "../stores/useAvdConfig";
 
 const store = useAvdConfigStore();
 
@@ -61,15 +61,18 @@ watch([sdcard, SDCard], () => {
     case 'studio-managed':
       store.config.sdcard = {
         size: sdcard.size!,
-      }
+      };
+      store.config.hw.sdCard = true;
       break;
     case 'external-file':
       store.config.sdcard = {
         path: sdcard.path!,
-      }
+      };
+      store.config.hw.sdCard = true;
       break;
     case 'no-sd-card':
       delete store.config.sdcard;
+      store.config.hw.sdCard = false;
       break;
   }
 }, {
@@ -86,34 +89,34 @@ watch([sdcard, SDCard], () => {
       <!-- RAM -->
       <div class="form-item gap-3">
         <label for="ram" class="w-24 block">RAM:</label>
-        <SizeInput id="ram" v-model="store.config.hw.ramSize" class="flex-1" @blur="store.onBlur" />
+        <SizeInput id="ram" v-model="store.config.hw.ramSize" class="flex-1" @focus="store.setHintsById('ram')" @blur="store.onBlur" />
       </div>
       <!-- VM Heap -->
       <div class="form-item gap-3">
         <label for="vm-heap" class="w-24 block">VM heap:</label>
-        <SizeInput id="ram" v-model="store.config.vm.heapSize" class="flex-1" @blur="store.onBlur" />
+        <SizeInput id="vm-heap" v-model="store.config.vm.heapSize" class="flex-1" @focus="store.setHintsById('vm-heap')" @blur="store.onBlur" />
       </div>
       <!-- Internal Storage -->
       <div class="form-item gap-3">
         <label for="internal-storage" class="w-24 block">Internal storage:</label>
-        <SizeInput id="ram" v-model="store.config.disk.dataPartition.size" target-unit="G" :number-only="false" class="flex-1" @blur="store.onBlur" />
+        <SizeInput id="internal-storage" v-model="store.config.disk.dataPartition.size" target-unit="G" :number-only="false" class="flex-1" @focus="store.setHintsById('internal-storage')" @blur="store.onBlur" />
       </div>
       <!-- SD Card -->
       <fieldset class="form-item">
         <legend>SD card:</legend>
         <ul class="radio ml-26! flex flex-col gap-3">
-          <li>
-            <input type="radio" id="studio-managed" v-model="SDCard" value="studio-managed" />
+          <li @mousedown.stop="store.setHintsById('sd-card-studio-managed')">
+            <input type="radio" id="studio-managed" v-model="SDCard" value="studio-managed" @focus="store.setHintsById('sd-card-studio-managed')" @blur="store.resetHints" />
             <label for="studio-managed" class="ml-2 mr-3 w-24">Studio-managed</label>
-            <SizeInput id="ram" v-model="sdcard.size!" :number-only="false" :disabled="SDCard !== 'studio-managed'" class="flex-1" />
+            <SizeInput v-model="sdcard.size!" :number-only="false" :disabled="SDCard !== 'studio-managed'" class="flex-1" @focus="store.setHintsById('sd-card-studio-managed')" />
           </li>
-          <li>
-            <input type="radio" id="external-file" v-model="SDCard" value="external-file" />
+          <li @mousedown.stop="store.setHintsById('sd-card-external-file')">
+            <input type="radio" id="external-file" v-model="SDCard" value="external-file" @focus="store.setHintsById('sd-card-external-file')" @blur="store.resetHints" />
             <label for="external-file" class="ml-2 mr-3 w-24">External file</label>
-            <input type="text" v-model="sdcard.path!" :disabled="SDCard !== 'external-file'" class="input flex-1" @blur="store.onBlur" />
+            <input type="text" v-model="sdcard.path!" :disabled="SDCard !== 'external-file'" class="input flex-1" @blur="store.onBlur" @focus="store.setHintsById('sd-card-external-file')" />
           </li>
-          <li>
-            <input type="radio" id="no-sd-card" v-model="SDCard" value="no-sd-card" />
+          <li @mousedown.stop="store.setHintsById('sd-card-no-sdcard')">
+            <input type="radio" id="no-sd-card" v-model="SDCard" value="no-sd-card" @focus="store.setHintsById('sd-card-no-sdcard')" @blur="store.resetHints" />
             <label for="no-sd-card" class="ml-2">No SDCard</label>
           </li>
         </ul>

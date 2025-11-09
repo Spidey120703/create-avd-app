@@ -1,6 +1,6 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import { useAvdConfigStore } from "../composables/useAvdConfig";
+import { useAvdConfigStore } from "../stores/useAvdConfig";
 
 const store = useAvdConfigStore();
 
@@ -38,6 +38,8 @@ const enableMultiCore = ref(true);
 watch(enableMultiCore, (newValue) => {
   if (!newValue) {
     store.config.hw.cpu.ncore = 1;
+  } else {
+    store.config.hw.cpu.ncore = 4;
   }
 });
 </script>
@@ -49,7 +51,7 @@ watch(enableMultiCore, (newValue) => {
       <!-- Graphic -->
       <div class="form-item">
         <label for="network-speed" class="w-24 block">Graphic:</label>
-        <select id="network-speed" v-model="store.config.hw.gpu.mode" class="select w-28">
+        <select id="network-speed" v-model="store.config.hw.gpu.mode" class="select w-28" @click.stop="store.setHintsById('graphics')" @focus="store.setHintsById('graphics')" @blur="store.resetHints">
           <option v-for="o in GraphicOptions" :value="o.value">{{ o.label }}</option>
         </select>
       </div>
@@ -57,19 +59,19 @@ watch(enableMultiCore, (newValue) => {
       <fieldset class="form-item">
         <legend>Boot option:</legend>
         <ul class="radio ml-24!">
-          <li>
-            <input type="radio" id="cold-boot" v-model="bootOption" value="cold" />
+          <li class="w-fit" @mousedown.stop.prevent="store.setHintsById('boot-option')">
+            <input type="radio" id="cold-boot" v-model="bootOption" value="cold" @focus="store.setHintsById('boot-option')" @blur="store.resetHints" />
             <label for="cold-boot" class="ml-2">Cold boot</label>
           </li>
-          <li>
-            <input type="radio" id="fast-boot" v-model="bootOption" value="fast" />
+          <li class="w-fit" @mousedown.stop.prevent="store.setHintsById('boot-option')">
+            <input type="radio" id="fast-boot" v-model="bootOption" value="fast" @focus="store.setHintsById('boot-option')" @blur="store.resetHints" />
             <label for="fast-boot" class="ml-2">Quick boot</label>
           </li>
         </ul>
       </fieldset>
       <hr class="m-0!" />
       <!-- Multi-Core CPU -->
-      <div class="flex flex-row items-center">
+      <div class="flex flex-row items-center" @focusin="store.setHintsById('multi-core-cpu')" @focusout="store.resetHints">
         <input type="checkbox" id="enable-multi-core" v-model="enableMultiCore" class="checkbox" />
         <label for="enable-multi-core" class="ml-2">Multi-Core CPU</label>
         <select v-model="store.config.hw.cpu.ncore" :disabled="!enableMultiCore" class="select w-16 ml-4">

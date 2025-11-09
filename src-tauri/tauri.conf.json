@@ -14,7 +14,10 @@
       {
         "title": "Virtual Device Configuration",
         "width": 1250,
-        "height": 720
+        "height": 720,
+        "minWidth": 720,
+        "minHeight": 480,
+        "theme": "Dark"
       }
     ],
     "security": {

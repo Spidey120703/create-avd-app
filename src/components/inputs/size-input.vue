@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 import { ref, watch } from 'vue';
 
 const SizeUnitOptions = [
@@ -34,7 +34,7 @@ const convertFromKB = (valInKB: number, unit: string): number => {
 };
 
 const props = withDefaults(defineProps<{
-    id: string,
+    id?: string,
     targetUnit?: string,
     numberOnly?: boolean,
     disabled?: boolean,
@@ -102,11 +102,13 @@ watch(
     { immediate: false }
 );
 
+const emit = defineEmits(['focus', 'blur'])
+
 </script>
 
 <template>
   <div class="flex flex-row gap-3">
-    <input :id="id" v-model="size" class="input flex-1 w-0" :disabled="disabled" />
+    <input :id="id" v-model="size" class="input flex-1 w-0" :disabled="disabled" @focus="event => emit('focus', event)" @blur="event => emit('blur', event)" />
     <select class="select w-20" v-model="unit" :disabled="disabled">
         <option v-for="o in SizeUnitOptions" :value="o.value">{{ o.label }}</option>
     </select>
